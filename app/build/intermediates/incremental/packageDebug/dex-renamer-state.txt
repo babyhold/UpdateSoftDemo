@@ -1,0 +1,7 @@
+#Tue May 02 17:51:23 CST 2017
+base.0=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_ceb0b4e95cc0846cf27fb7da7b6fa7e4ca945daa
+renamed.1=classes.dex
+renamed.0=classes2.dex
+file.1=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_e8aa569b2bacec4e82abf40f7e3cb87a8a6b355c\\classes.dex
+base.1=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_e8aa569b2bacec4e82abf40f7e3cb87a8a6b355c
+file.0=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_ceb0b4e95cc0846cf27fb7da7b6fa7e4ca945daa\\classes.dex
