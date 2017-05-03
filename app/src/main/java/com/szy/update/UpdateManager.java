@@ -1,21 +1,12 @@
 package com.szy.update;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Environment;
@@ -25,6 +16,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 
 /**
  *@author coolszy
@@ -100,10 +100,35 @@ public class UpdateManager
 	 */
 	private boolean isUpdate()
 	{
+		InputStream inStream = null;
 		// 获取当前软件版本
 		int versionCode = getVersionCode(mContext);
 		// 把version.xml放到网络上，然后获取文件信息
-		InputStream inStream = ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
+		//从文件中读取
+	//	InputStream inStream = ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
+////////////////////////////////////////////////////////////
+		//通过服务器获得版本号
+		String path = "http://192.168.1.2/Android/version.xml";
+		try {
+			URL url = new URL(path);
+
+
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+			conn.setConnectTimeout(5000);
+
+			conn.setRequestMethod("GET");
+
+
+			inStream = conn.getInputStream();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
 		// 解析XML文件。 由于XML文件比较小，因此使用DOM方式进行解析
 		ParseXmlService service = new ParseXmlService();
 		try
