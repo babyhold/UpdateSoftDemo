@@ -18,12 +18,13 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -46,6 +47,10 @@ public class UpdateManager
 	private int progress;
 	/* 是否取消更新 */
 	private boolean cancelUpdate = false;
+
+	private Date startDate,endDate;
+
+	private int threadnum = 3;
 
 	private Context mContext;
 	/* 更新进度条 */
@@ -104,6 +109,8 @@ public class UpdateManager
 		// 获取当前软件版本
 		int versionCode = getVersionCode(mContext);
 		// 把version.xml放到网络上，然后获取文件信息
+
+
 		//从文件中读取
 	//	InputStream inStream = ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
 ////////////////////////////////////////////////////////////
@@ -180,7 +187,8 @@ public class UpdateManager
 		builder.setTitle(R.string.soft_update_title);
 		builder.setMessage(R.string.soft_update_info);
 		// 更新
-		builder.setPositiveButton(R.string.soft_update_updatebtn, new OnClickListener()
+
+		builder.setNegativeButton(R.string.soft_update_updatebtn, new OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
@@ -191,7 +199,7 @@ public class UpdateManager
 			}
 		});
 		// 稍后更新
-		builder.setNegativeButton(R.string.soft_update_later, new OnClickListener()
+		builder.setPositiveButton(R.string.soft_update_later, new OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
@@ -278,12 +286,22 @@ public class UpdateManager
 						file.mkdir();
 					}
 					File apkFile = new File(mSavePath, mHashMap.get("name"));
-					FileOutputStream fos = new FileOutputStream(apkFile);
+//					FileOutputStream fos = new FileOutputStream(apkFile);
+					RandomAccessFile fos = new RandomAccessFile(apkFile, "rwd");//生成本地文件
+					fos.setLength(length);
+					fos.close();
+					//开始计时
+					startDate =   new   Date(System.currentTimeMillis());
+					//计算每条线程负责下载的数据量
+					int block = length % threadnum == 0 ? length / threadnum : length / threadnum +1;
+					for(int threadid = 0 ; threadid < threadnum ; threadid++){
+						new DownloadThread(threadid, url, block, apkFile).start();
+					}
 					int count = 0;
 					// 缓存
 					byte buf[] = new byte[1024];
 					// 写入到文件中
-					do
+/*					do
 					{
 						int numread = is.read(buf);
 						count += numread;
@@ -300,7 +318,7 @@ public class UpdateManager
 						// 写入文件
 						fos.write(buf, 0, numread);
 					} while (!cancelUpdate);// 点击取消就停止下载.
-					fos.close();
+					fos.close();*/
 					is.close();
 				}
 			} catch (MalformedURLException e)
@@ -314,6 +332,53 @@ public class UpdateManager
 			mDownloadDialog.dismiss();
 		}
 	};
+
+	//负责下载操作
+	private final class DownloadThread extends Thread{
+		private int threadid;
+		private URL downpath;
+		private int block;
+		private File file;
+
+		public DownloadThread(int threadid, URL downpath, int block, File file) {
+			this.threadid = threadid;
+			this.downpath = downpath;
+			this.block = block;
+			this.file = file;
+		}
+		public void run() {
+			int startposition = threadid * block;//从网络文件的什么位置开始下载数据
+			int endposition = (threadid+1) * block - 1;//下载到网络文件的什么位置结束
+			//指示该线程要从网络文件的startposition位置开始下载，下载到endposition位置结束
+			//Range:bytes=startposition-endposition
+			try{
+				RandomAccessFile accessFile = new RandomAccessFile(file, "rwd");
+				accessFile.seek(startposition);//移动指针到文件的某个位置
+				HttpURLConnection conn = (HttpURLConnection) downpath.openConnection();
+				conn.setConnectTimeout(5000);
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Range", "bytes="+ startposition+ "-"+ endposition);
+				InputStream inStream = conn.getInputStream();
+				byte[] buffer = new byte[1024];
+				int len = 0;
+				while( (len = inStream.read(buffer)) != -1 ){
+					accessFile.write(buffer, 0, len);
+					System.out.println("第"+ (threadid+1)+ "下载"+len);
+				}
+				accessFile.close();
+				inStream.close();
+				System.out.println("第"+ (threadid+1)+ "线程下载完成");
+				endDate = new   Date(System.currentTimeMillis());
+				long diff = endDate.getTime() - startDate.getTime();
+
+				//然后在文本框中显示出来：
+				System.out.println("第"+ (threadid+1)+"线程完成time:"+diff);
+
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	/**
 	 * 安装APK文件

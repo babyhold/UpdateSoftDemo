@@ -1,0 +1,18 @@
+#Internal package file, do not edit.
+#Thu May 04 09:05:50 CST 2017
+1.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
+4.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\res\\layout\\softupdate_progress.xml
+1.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\AndroidManifest.xml
+4.set=ANDROID_RESOURCE
+2.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
+3.set=ANDROID_RESOURCE
+2.set=ANDROID_RESOURCE
+2.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\resources.arsc
+count=5
+1.set=ANDROID_RESOURCE
+3.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
+0.set=ANDROID_RESOURCE
+0.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
+3.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\res\\drawable-hdpi-v4\\icon.png
+0.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\res\\layout\\main.xml
+4.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
