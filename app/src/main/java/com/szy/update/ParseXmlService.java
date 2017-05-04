@@ -1,15 +1,15 @@
 package com.szy.update;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.InputStream;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *@author coolszy
@@ -53,6 +53,11 @@ public class ParseXmlService
 				else if (("url".equals(childElement.getNodeName())))
 				{
 					hashMap.put("url",childElement.getFirstChild().getNodeValue());
+				}
+				//线程数
+				else if (("thread".equals(childElement.getNodeName())))
+				{
+					hashMap.put("thread",childElement.getFirstChild().getNodeValue());
 				}
 			}
 		}

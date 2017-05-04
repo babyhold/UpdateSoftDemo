@@ -9,5 +9,5 @@
     <string name="soft_update_later">稍后更新</string>
     <string name="soft_updating">正在更新</string>
     <string name="soft_update_cancel">取消</string>
-    <string name="version">2</string>
+    <string name="version">Version: 2</string>
 </resources>

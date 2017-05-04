@@ -47,14 +47,7 @@
                     "endOffset": 272
                 },
                 "from": {
-                    "file": "D:\\github\\UpdateSoftDemo\\app\\src\\main\\res\\values\\strings.xml",
-                    "position": {
-                        "startLine": 6,
-                        "startColumn": 4,
-                        "startOffset": 270,
-                        "endColumn": 58,
-                        "endOffset": 324
-                    }
+                    "file": "D:\\github\\UpdateSoftDemo\\app\\src\\main\\res\\values\\strings.xml"
                 }
             },
             {
@@ -122,11 +115,18 @@
                     "startLine": 11,
                     "startColumn": 4,
                     "startOffset": 530,
-                    "endColumn": 37,
-                    "endOffset": 563
+                    "endColumn": 46,
+                    "endOffset": 572
                 },
                 "from": {
-                    "file": "D:\\github\\UpdateSoftDemo\\app\\src\\main\\res\\values\\strings.xml"
+                    "file": "D:\\github\\UpdateSoftDemo\\app\\src\\main\\res\\values\\strings.xml",
+                    "position": {
+                        "startLine": 11,
+                        "startColumn": 4,
+                        "startOffset": 530,
+                        "endColumn": 46,
+                        "endOffset": 572
+                    }
                 }
             }
         ]

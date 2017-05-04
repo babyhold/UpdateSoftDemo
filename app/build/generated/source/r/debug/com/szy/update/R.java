@@ -14,6 +14,9 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
+        public static final int TextProgress=0x7f050003;
+        public static final int TextProgressNum=0x7f050004;
+        public static final int TextTime=0x7f050005;
         public static final int btnUpdate=0x7f050000;
         public static final int textView=0x7f050001;
         public static final int update_progress=0x7f050002;

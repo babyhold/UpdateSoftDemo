@@ -5,40 +5,46 @@
     density="hdpi"
     format="8"
     plugin-version="2.2.2"
-    timestamp="3560151283146"
+    timestamp="23832825534140"
     token="632000560675763788"
     verifier="COLD_SWAP_REQUESTED" >
 
     <task
         name="javac"
-        duration="498" />
+        duration="0" />
     <task
         name="instant-run-dex"
         duration="0" />
     <task
         name="instant-run-transform"
-        duration="50" />
+        duration="0" />
     <task
         name="verifier"
-        duration="8" />
-
-    <artifact
-        location="D:\github\UpdateSoftDemo\app\build\intermediates\transforms\dex\debug\folders\1000\5\slice_2\classes.dex"
-        type="DEX" />
+        duration="0" />
 
     <build
-        timestamp="3367288503871"
+        timestamp="22612153705793"
         verifier="FULL_BUILD_REQUESTED" >
         <artifact
             location="D:\github\UpdateSoftDemo\app\build\outputs\apk\app-debug.apk"
             type="MAIN" />
     </build>
     <build
-        timestamp="3560151283146"
+        timestamp="23648450803837"
+        verifier="COLD_SWAP_REQUESTED" >
+        <artifact
+            location="D:\github\UpdateSoftDemo\app\build\intermediates\instant-run-resources\resources-debug.ir.ap_"
+            type="RESOURCES" />
+    </build>
+    <build
+        timestamp="23768294881114"
         verifier="COLD_SWAP_REQUESTED" >
         <artifact
             location="D:\github\UpdateSoftDemo\app\build\intermediates\transforms\dex\debug\folders\1000\5\slice_2\classes.dex"
             type="DEX" />
     </build>
+    <build
+        timestamp="23832825534140"
+        verifier="COLD_SWAP_REQUESTED" />
 
 </instant-run>

@@ -1,11 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="fill_parent"
+	android:gravity="center"
 	android:layout_height="wrap_content">
+
+
 	<ProgressBar
 		android:id="@+id/update_progress"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		style="?android:attr/progressBarStyleHorizontal" />
-</LinearLayout>
+
+	<TextView
+		android:text="TextProgress"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/TextProgress"
+		android:gravity="center"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true"
+		android:layout_marginTop="87dp"
+		android:textColorHint="@android:color/holo_orange_light"
+		android:textColor="@android:color/holo_orange_dark"
+		android:textSize="24sp" />
+
+	<TextView
+		android:text="TextProgressNum"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/TextProgressNum"
+		android:gravity="center"
+		android:textColorHint="@android:color/holo_orange_light"
+		android:textColor="@android:color/holo_orange_dark"
+		android:textSize="24sp"
+		android:layout_marginTop="40dp"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true" />
+
+	<TextView
+		android:text="TextTime"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/TextTime"
+		android:gravity="center"
+		android:textColorHint="@android:color/holo_orange_light"
+		android:textColor="@android:color/holo_orange_dark"
+		android:textSize="24sp"
+		android:layout_marginTop="123dp"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true" />
+</RelativeLayout>

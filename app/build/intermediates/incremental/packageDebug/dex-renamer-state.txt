@@ -1,4 +1,4 @@
-#Thu May 04 10:21:20 CST 2017
+#Thu May 04 15:42:07 CST 2017
 base.0=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_ceb0b4e95cc0846cf27fb7da7b6fa7e4ca945daa
 renamed.1=classes.dex
 renamed.0=classes2.dex

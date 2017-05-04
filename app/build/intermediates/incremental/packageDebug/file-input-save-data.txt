@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Thu May 04 09:06:00 CST 2017
+#Thu May 04 15:42:07 CST 2017
 8.set=DEX
 1.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\5\\slice_9
 1.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\5\\slice_9\\classes.dex

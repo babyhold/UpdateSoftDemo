@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Thu May 04 09:05:50 CST 2017
+#Thu May 04 15:59:15 CST 2017
 1.base=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_
 4.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\res\\layout\\softupdate_progress.xml
 1.file=D\:\\github\\UpdateSoftDemo\\app\\build\\intermediates\\res\\resources-debug.ap_\\AndroidManifest.xml

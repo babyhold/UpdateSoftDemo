@@ -15,6 +15,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +39,8 @@ public class UpdateManager
 	private static final int DOWNLOAD = 1;
 	/* 下载结束 */
 	private static final int DOWNLOAD_FINISH = 2;
+	/* 安装apk */
+	private static final int DOWNLOAD_AFTER = 3;
 	/* 保存解析的XML信息 */
 	HashMap<String, String> mHashMap;
 	/* 下载保存路径 */
@@ -55,6 +57,9 @@ public class UpdateManager
 	private Context mContext;
 	/* 更新进度条 */
 	private ProgressBar mProgress;
+	private TextView mTextProgress;
+	private TextView mTextProgressNum;
+	private TextView mTextTime;
 	private Dialog mDownloadDialog;
 
 	private Handler mHandler = new Handler()
@@ -67,8 +72,21 @@ public class UpdateManager
 			case DOWNLOAD:
 				// 设置进度条位置
 				mProgress.setProgress(progress);
+				mTextProgress.setText("下载进度: "+String.valueOf(progress)+"%");
+
+				endDate = new   Date(System.currentTimeMillis());
+				long diff = endDate.getTime() - startDate.getTime();
+
+				mTextTime.setText("下载时间："+String.valueOf(diff)+" ms");
 				break;
 			case DOWNLOAD_FINISH:
+//				endDate = new   Date(System.currentTimeMillis());
+//				long diff = endDate.getTime() - startDate.getTime();
+
+//				mTextProgress.setText("下载时间："+String.valueOf(diff)+"ms");
+
+				break;
+			case DOWNLOAD_AFTER:
 				// 安装文件
 				installApk();
 				break;
@@ -223,6 +241,10 @@ public class UpdateManager
 		final LayoutInflater inflater = LayoutInflater.from(mContext);
 		View v = inflater.inflate(R.layout.softupdate_progress, null);
 		mProgress = (ProgressBar) v.findViewById(R.id.update_progress);
+		mTextProgress =(TextView) v.findViewById(R.id.TextProgress);
+		mTextProgressNum =(TextView) v.findViewById(R.id.TextProgressNum);
+		mTextTime =(TextView) v.findViewById(R.id.TextTime);
+
 		builder.setView(v);
 		// 取消更新
 		builder.setNegativeButton(R.string.soft_update_cancel, new OnClickListener()
@@ -265,8 +287,7 @@ public class UpdateManager
 			try
 			{
 				// 判断SD卡是否存在，并且是否具有读写权限
-				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-				{
+				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 					// 获得存储卡的路径
 					String sdpath = Environment.getExternalStorageDirectory() + "/";
 					mSavePath = sdpath + "download";
@@ -281,8 +302,7 @@ public class UpdateManager
 
 					File file = new File(mSavePath);
 					// 判断文件目录是否存在
-					if (!file.exists())
-					{
+					if (!file.exists()) {
 						file.mkdir();
 					}
 					File apkFile = new File(mSavePath, mHashMap.get("name"));
@@ -290,40 +310,72 @@ public class UpdateManager
 					RandomAccessFile fos = new RandomAccessFile(apkFile, "rwd");//生成本地文件
 					fos.setLength(length);
 					fos.close();
+
+					//获取线程数
+					threadnum = Integer.parseInt(mHashMap.get("thread"));
+					mTextProgressNum.setText("线程数："+String.valueOf(threadnum));
+					//（mHashMap.get("thread")）;
 					//开始计时
-					startDate =   new   Date(System.currentTimeMillis());
+					startDate = new Date(System.currentTimeMillis());
 					//计算每条线程负责下载的数据量
-					int block = length % threadnum == 0 ? length / threadnum : length / threadnum +1;
-					for(int threadid = 0 ; threadid < threadnum ; threadid++){
-						new DownloadThread(threadid, url, block, apkFile).start();
+					int block = length % threadnum == 0 ? length / threadnum : length / threadnum + 1;
+
+					FileDownloadThread[] threads = new FileDownloadThread[threadnum];
+					for (int threadid = 0; threadid < threadnum; threadid++) {
+						// 启动线程，分别下载每个线程需要下载的部分
+						threads[threadid] = new FileDownloadThread(url, apkFile, block,
+								(threadid + 1));
+						threads[threadid].setName("downloadThread:" + threadid);
+						threads[threadid].start();
 					}
-					int count = 0;
-					// 缓存
-					byte buf[] = new byte[1024];
-					// 写入到文件中
-/*					do
+
+					boolean isfinished = false;
+					int downloadedAllSize = 0;
+					while ((!isfinished)&&(!cancelUpdate))
+						// 点击取消就停止下载//.或者下载完成
 					{
-						int numread = is.read(buf);
-						count += numread;
-						// 计算进度条位置
-						progress = (int) (((float) count / length) * 100);
-						// 更新进度
-						mHandler.sendEmptyMessage(DOWNLOAD);
-						if (numread <= 0)
-						{
+							isfinished = true;
+							// 当前所有线程下载总量
+							downloadedAllSize = 0;
+							for (int i = 0; i < threadnum; i++) {
+								downloadedAllSize += threads[i].getDownloadLength();
+								if (!threads[i].isCompleted()) {
+									isfinished = false;
+								}
+							}
+							// 通知handler去更新视图组件
+
+							// 计算进度条位置
+							progress = (int) (((float) downloadedAllSize / length) * 100);
+							// 更新进度
+							mHandler.sendEmptyMessage(DOWNLOAD);
+							try {
+								Thread.sleep(1000);// 休息1秒后再读取下载进度
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+
+						}
+						if (downloadedAllSize == length) {
+
 							// 下载完成
 							mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
-							break;
+							try {
+								Thread.sleep(1000);// 休息1秒后再读取下载进度
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							// 安装APK
+							mHandler.sendEmptyMessage(DOWNLOAD_AFTER);
+
 						}
-						// 写入文件
-						fos.write(buf, 0, numread);
-					} while (!cancelUpdate);// 点击取消就停止下载.
-					fos.close();*/
-					is.close();
+
+//					Log.d(TAG, " all of downloadSize:" + downloadedAllSize);
+
+
 				}
-			} catch (MalformedURLException e)
-			{
-				e.printStackTrace();
+
+
 			} catch (IOException e)
 			{
 				e.printStackTrace();
