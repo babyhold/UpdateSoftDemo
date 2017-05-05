@@ -325,7 +325,7 @@ public class UpdateManager
 						// 启动线程，分别下载每个线程需要下载的部分
 						threads[threadid] = new FileDownloadThread(url, apkFile, block,
 								(threadid + 1));
-						threads[threadid].setName("downloadThread:" + threadid);
+						threads[threadid].setName("mydown" + threadid);
 						threads[threadid].start();
 					}
 
