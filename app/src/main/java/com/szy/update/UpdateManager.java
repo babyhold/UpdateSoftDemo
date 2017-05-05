@@ -19,11 +19,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -320,13 +325,20 @@ public class UpdateManager
 					//计算每条线程负责下载的数据量
 					int block = length % threadnum == 0 ? length / threadnum : length / threadnum + 1;
 
-					FileDownloadThread[] threads = new FileDownloadThread[threadnum];
+//					FileDownloadThread[] threads = new FileDownloadThread[threadnum];
+				//	File[] PartFiles = new File[threadnum];
+					//String[] PartFiles new String[threadnum];
+					ArrayList<String> Partlist = new ArrayList<String>();
+
+
+					FilePartDownloadThread[] threads = new FilePartDownloadThread[threadnum];
 					for (int threadid = 0; threadid < threadnum; threadid++) {
 						// 启动线程，分别下载每个线程需要下载的部分
-						threads[threadid] = new FileDownloadThread(url, apkFile, block,
+						threads[threadid] = new FilePartDownloadThread(url, apkFile, block,
 								(threadid + 1));
 						threads[threadid].setName("mydown" + threadid);
 						threads[threadid].start();
+						Partlist.add(apkFile.getPath()+".part"+String.valueOf(threadid+1));
 					}
 
 					boolean isfinished = false;
@@ -357,6 +369,12 @@ public class UpdateManager
 
 						}
 						if (downloadedAllSize == length) {
+							//合并文件//并删除part文件
+//							mergeFiles(apkFile.getPath(), new String[]{apkFile.getPath()+".part1", apkFile.getPath()+".part2",apkFile.getPath()+".part3",apkFile.getPath()+".part4"});
+							mergeFiles(apkFile.getPath(), Partlist.toArray(new String[Partlist.size()]));
+
+
+
 
 							// 下载完成
 							mHandler.sendEmptyMessage(DOWNLOAD_FINISH);
@@ -447,4 +465,53 @@ public class UpdateManager
 		i.setDataAndType(Uri.parse("file://" + apkfile.toString()), "application/vnd.android.package-archive");
 		mContext.startActivity(i);
 	}
-}
+
+
+
+		public static void mergeFiles(String outFile, String[] files) {
+			int BUFSIZE = 1024 * 8;
+			FileChannel outChannel = null;
+			//out.println("Merge " + Arrays.toString(files) + " into " + outFile);
+			try {
+				outChannel = new FileOutputStream(outFile).getChannel();
+				for(String f : files){
+					FileChannel fc = new FileInputStream(f).getChannel();
+					ByteBuffer bb = ByteBuffer.allocate(BUFSIZE);
+					while(fc.read(bb) != -1){
+						bb.flip();
+						outChannel.write(bb);
+						bb.clear();
+					}
+					fc.close();
+					deleteFile(f);
+				}
+			//	out.println("Merged!! ");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			} finally {
+				try {if (outChannel != null) {outChannel.close();}} catch (IOException ignore) {}
+			}
+		}
+
+	private static boolean deleteFile(String fileName) {
+		File file = new File(fileName);
+		// 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+		if (file.exists() && file.isFile()) {
+			if (file.delete()) {
+				System.out.println("删除单个文件" + fileName + "成功！");
+				return true;
+			} else {
+				System.out.println("删除单个文件" + fileName + "失败！");
+				return false;
+			}
+		} else {
+			System.out.println("删除单个文件失败：" + fileName + "不存在！");
+			return false;
+		}
+	}
+
+
+//		public static void main(String[] args) {
+//			mergeFiles("D:/output.txt", new String[]{"D:/in_1.txt", "D:/in_2.txt", "D:/in_3.txt"});
+//		}
+	}
