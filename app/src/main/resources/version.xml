@@ -1,5 +1,6 @@
 <update>
-	<version>1</version>
-	<name>baidu_xinwen_1.1.0</name>
-	<url>http://gdown.baidu.com/data/wisegame/f98d235e39e29031/baiduxinwen.apk</url>
+	<version>4</version>
+	<name>myupdate</name>
+	<url>http://192.168.1.2/Android/opencv-3.2.0-vc14.exe</url>
+	<thread>1</thread>
 </update>

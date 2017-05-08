@@ -73,7 +73,7 @@ public class FilePartDownloadThread extends Thread {
 
           //  raf = new RandomAccessFile(file, "rwd");
           //  raf.seek(startPos);
-            int len;
+            int len=0;
             while ((len = bis.read(buffer, 0, 1024)) != -1) {
                 fos.write(buffer, 0, len);
                 downloadLength += len;

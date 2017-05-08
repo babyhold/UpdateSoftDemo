@@ -61,6 +61,7 @@ public class UpdateManager
 
 	private Context mContext;
 	/* 更新进度条 */
+	private int length;
 	private ProgressBar mProgress;
 	private TextView mTextProgress;
 	private TextView mTextProgressNum;
@@ -77,12 +78,15 @@ public class UpdateManager
 			case DOWNLOAD:
 				// 设置进度条位置
 				mProgress.setProgress(progress);
-				mTextProgress.setText("下载进度: "+String.valueOf(progress)+"%");
-				mTextProgressNum.setText("线程数："+String.valueOf(threadnum));
+				mTextProgressNum.setText("线程数："+String.valueOf(threadnum)+"       文件大小："+ String.valueOf(length)+"Byte");
+
+
 				endDate = new   Date(System.currentTimeMillis());
 				long diff = endDate.getTime() - startDate.getTime();
 
 				mTextTime.setText("下载时间："+String.valueOf(diff)+" ms");
+
+				mTextProgress.setText("下载进度: "+String.valueOf(progress)+"%"+"   已下载："+ String.valueOf(length/100000*progress)+"KB"+"   Bps："+ String.valueOf(length/100*progress/diff)+"KBps");
 				break;
 			case DOWNLOAD_FINISH:
 //				endDate = new   Date(System.currentTimeMillis());
@@ -133,30 +137,31 @@ public class UpdateManager
 		int versionCode = getVersionCode(mContext);
 		// 把version.xml放到网络上，然后获取文件信息
 
+        if(false)
+		{
+		//从本地文件resources/version.xml 中读取
+		 inStream = ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");}
 
-		//从文件中读取
-	//	InputStream inStream = ParseXmlService.class.getClassLoader().getResourceAsStream("version.xml");
 ////////////////////////////////////////////////////////////
 		//通过服务器获得版本号
-		String path = "http://192.168.1.2/Android/version.xml";
-		try {
-			URL url = new URL(path);
+		else {
+			String path = "http://192.168.1.2/Android/version.xml";
+			try {
+				URL url = new URL(path);
 
 
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-			conn.setConnectTimeout(5000);
+				conn.setConnectTimeout(5000);
 
-			conn.setRequestMethod("GET");
+				conn.setRequestMethod("GET");
 
 
-			inStream = conn.getInputStream();
+				inStream = conn.getInputStream();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 		// 解析XML文件。 由于XML文件比较小，因此使用DOM方式进行解析
@@ -301,7 +306,7 @@ public class UpdateManager
 					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					conn.connect();
 					// 获取文件大小
-					int length = conn.getContentLength();
+					length = conn.getContentLength();
 					// 创建输入流
 					InputStream is = conn.getInputStream();
 
@@ -326,7 +331,7 @@ public class UpdateManager
 					int block = length % threadnum == 0 ? length / threadnum : length / threadnum + 1;
 
 //					FileDownloadThread[] threads = new FileDownloadThread[threadnum];
-				//	File[] PartFiles = new File[threadnum];
+					//	File[] PartFiles = new File[threadnum];
 					//String[] PartFiles new String[threadnum];
 					ArrayList<String> Partlist = new ArrayList<String>();
 
@@ -338,36 +343,43 @@ public class UpdateManager
 								(threadid + 1));
 						threads[threadid].setName("mydown" + threadid);
 						threads[threadid].start();
-						Partlist.add(apkFile.getPath()+".part"+String.valueOf(threadid+1));
+						Partlist.add(apkFile.getPath() + ".part" + String.valueOf(threadid + 1));
 					}
 
 					boolean isfinished = false;
 					int downloadedAllSize = 0;
-					while ((!isfinished)&&(!cancelUpdate))
-						// 点击取消就停止下载//.或者下载完成
+					while ((!isfinished) && (!cancelUpdate))
+					// 点击取消就停止下载//.或者下载完成
 					{
-							isfinished = true;
-							// 当前所有线程下载总量
-							downloadedAllSize = 0;
-							for (int i = 0; i < threadnum; i++) {
-								downloadedAllSize += threads[i].getDownloadLength();
-								if (!threads[i].isCompleted()) {
-									isfinished = false;
-								}
+						isfinished = true;
+						// 当前所有线程下载总量
+						downloadedAllSize = 0;
+						for (int i = 0; i < threadnum; i++) {
+							downloadedAllSize += threads[i].getDownloadLength();
+							if (!threads[i].isCompleted()) {
+								isfinished = false;
 							}
-							// 通知handler去更新视图组件
-
-							// 计算进度条位置
-							progress = (int) (((float) downloadedAllSize / length) * 100);
-							// 更新进度
-							mHandler.sendEmptyMessage(DOWNLOAD);
-							try {
-								Thread.sleep(1000);// 休息1秒后再读取下载进度
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-
 						}
+						// 通知handler去更新视图组件
+
+						// 计算进度条位置
+						progress = (int) (((float) downloadedAllSize / length) * 100);
+						// 更新进度
+						mHandler.sendEmptyMessage(DOWNLOAD);
+						try {
+							Thread.sleep(1000);// 休息1秒后再读取下载进度
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+					}
+					if(cancelUpdate)
+					{
+						for (int threadid = 0; threadid < threadnum; threadid++) {
+							// 启动线程，分别下载每个线程需要下载的部分
+							threads[threadid].interrupt();
+						}
+				}
 						if (downloadedAllSize == length) {
 							//合并文件//并删除part文件
 //							mergeFiles(apkFile.getPath(), new String[]{apkFile.getPath()+".part1", apkFile.getPath()+".part2",apkFile.getPath()+".part3",apkFile.getPath()+".part4"});
@@ -471,25 +483,39 @@ public class UpdateManager
 		public static void mergeFiles(String outFile, String[] files) {
 			int BUFSIZE = 1024 * 8;
 			FileChannel outChannel = null;
-			//out.println("Merge " + Arrays.toString(files) + " into " + outFile);
-			try {
-				outChannel = new FileOutputStream(outFile).getChannel();
-				for(String f : files){
-					FileChannel fc = new FileInputStream(f).getChannel();
-					ByteBuffer bb = ByteBuffer.allocate(BUFSIZE);
-					while(fc.read(bb) != -1){
-						bb.flip();
-						outChannel.write(bb);
-						bb.clear();
+			if(files.length==1)
+			{
+				File oldfile=new File(files[0]);
+				File newfile=new File(outFile);
+				deleteFile(outFile);
+				oldfile.renameTo(newfile);
+			}
+			else {
+				//out.println("Merge " + Arrays.toString(files) + " into " + outFile);
+				try {
+					outChannel = new FileOutputStream(outFile).getChannel();
+					for (String f : files) {
+						FileChannel fc = new FileInputStream(f).getChannel();
+						ByteBuffer bb = ByteBuffer.allocate(BUFSIZE);
+						while (fc.read(bb) != -1) {
+							bb.flip();
+							outChannel.write(bb);
+							bb.clear();
+						}
+						fc.close();
+						deleteFile(f);
 					}
-					fc.close();
-					deleteFile(f);
+					//	out.println("Merged!! ");
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				} finally {
+					try {
+						if (outChannel != null) {
+							outChannel.close();
+						}
+					} catch (IOException ignore) {
+					}
 				}
-			//	out.println("Merged!! ");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			} finally {
-				try {if (outChannel != null) {outChannel.close();}} catch (IOException ignore) {}
 			}
 		}
 
