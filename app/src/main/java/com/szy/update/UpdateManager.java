@@ -78,7 +78,7 @@ public class UpdateManager
 				// 设置进度条位置
 				mProgress.setProgress(progress);
 				mTextProgress.setText("下载进度: "+String.valueOf(progress)+"%");
-
+				mTextProgressNum.setText("线程数："+String.valueOf(threadnum));
 				endDate = new   Date(System.currentTimeMillis());
 				long diff = endDate.getTime() - startDate.getTime();
 
@@ -318,7 +318,7 @@ public class UpdateManager
 
 					//获取线程数
 					threadnum = Integer.parseInt(mHashMap.get("thread"));
-					mTextProgressNum.setText("线程数："+String.valueOf(threadnum));
+
 					//（mHashMap.get("thread")）;
 					//开始计时
 					startDate = new Date(System.currentTimeMillis());
